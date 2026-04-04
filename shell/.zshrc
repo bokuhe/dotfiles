@@ -322,26 +322,36 @@ fi
 # NVM
 #-------------------------------------------------------------
 export NVM_DIR="$HOME/.nvm"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # MACOS - Check Homebrew paths (Apple Silicon and Intel) then manual install
-  if [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
-    # Apple Silicon Mac (M1/M2/...)
-    \. "/opt/homebrew/opt/nvm/nvm.sh"
-    [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
-  elif [ -s "/usr/local/opt/nvm/nvm.sh" ]; then
-    # Intel Mac
-    \. "/usr/local/opt/nvm/nvm.sh"
-    [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"
-  elif [ -s "$NVM_DIR/nvm.sh" ]; then
-    # Manual install
-    \. "$NVM_DIR/nvm.sh"
+# Lazy load nvm — defers ~360ms until first use of nvm/node/npm/npx
+__load_nvm() {
+  unfunction nvm node npm npx 2>/dev/null
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    if [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
+      \. "/opt/homebrew/opt/nvm/nvm.sh"
+      [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+    elif [ -s "/usr/local/opt/nvm/nvm.sh" ]; then
+      \. "/usr/local/opt/nvm/nvm.sh"
+      [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"
+    elif [ -s "$NVM_DIR/nvm.sh" ]; then
+      \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    fi
+  else
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   fi
-else
-  # LINUX
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+}
+# Stub commands that trigger lazy load
+for __nvm_cmd in nvm node npm npx; do
+  eval "${__nvm_cmd}() { __load_nvm; ${__nvm_cmd} \"\$@\" }"
+done
+unset __nvm_cmd
+# Add latest installed node to PATH immediately (avoids loading nvm just for node binary)
+__nvm_node_dir="$(ls -d "$NVM_DIR/versions/node/"v* 2>/dev/null | sort -V | tail -1)"
+if [[ -n "$__nvm_node_dir" ]]; then
+  export PATH="$__nvm_node_dir/bin:$PATH"
 fi
+unset __nvm_node_dir
 
 #-------------------------------------------------------------
 # Cargo (Rust)
