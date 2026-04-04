@@ -36,7 +36,6 @@ echo ""
 # Symlink mappings: "source:target"
 mappings=(
     "shell/.zshrc:$HOME/.zshrc"
-    "shell/.p10k.zsh:$HOME/.p10k.zsh"
     "vim/.vimrc:$HOME/.vimrc"
     "config/nvim:$HOME/.config/nvim"
     "config/zellij:$HOME/.config/zellij"

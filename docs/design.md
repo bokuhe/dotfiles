@@ -48,6 +48,10 @@ This prevents silent data loss on first install.
 
 This repository manages config files only. Tool installation is intentionally out of scope. Each machine may have a different set of tools installed, and coupling config management to package installation would add complexity without proportional benefit.
 
+### Powerlevel10k config as fallback only
+
+`p10k configure` generates machine-specific output based on terminal capabilities (fonts, unicode, colors). Rather than symlinking a shared config, the dotfiles repo stores a default at `shell/p10k.default.zsh`. The `.zshrc` loads `~/.p10k.zsh` if it exists (machine-local), otherwise falls back to the dotfiles default. This means new machines get a working prompt immediately, while existing machines keep their own configuration untouched.
+
 ### Git config partially excluded
 
 `~/.gitconfig` is not managed by this repository because it typically contains machine-specific values such as credential helpers and user identity. Only `~/.config/git/ignore` (the global gitignore) is managed, as it contains patterns that apply universally.
@@ -59,7 +63,6 @@ This repository manages config files only. Tool installation is intentionally ou
 | Repo Path | Target | Type |
 |---|---|---|
 | `shell/.zshrc` | `~/.zshrc` | file |
-| `shell/.p10k.zsh` | `~/.p10k.zsh` | file |
 | `vim/.vimrc` | `~/.vimrc` | file |
 | `config/nvim` | `~/.config/nvim` | directory |
 | `config/zellij` | `~/.config/zellij` | directory |

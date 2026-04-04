@@ -115,7 +115,12 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
   
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# Machine-local config takes priority; dotfiles default as fallback.
+if [[ -f ~/.p10k.zsh ]]; then
+  source ~/.p10k.zsh
+elif [[ -f "$DOTFILES_DIR/shell/p10k.default.zsh" ]]; then
+  source "$DOTFILES_DIR/shell/p10k.default.zsh"
+fi
   
 #-------------------------------------------------------------
 # ZSH Custom Plugins (auto-install if missing)

@@ -16,7 +16,7 @@ cd ~/dotfiles
 ~/dotfiles/
 ├── install.sh              # Interactive symlink installer with backup
 ├── shell/.zshrc            # Zsh config (oh-my-zsh, powerlevel10k, plugins)
-├── shell/.p10k.zsh         # Powerlevel10k theme config
+├── shell/p10k.default.zsh  # Powerlevel10k default config (fallback)
 ├── vim/.vimrc              # Vim config
 ├── config/nvim/init.vim    # Neovim config (sources .vimrc)
 ├── config/zellij/config.kdl # Zellij terminal multiplexer config
@@ -33,7 +33,6 @@ cd ~/dotfiles
 | Repo path          | Home directory target  |
 |--------------------|------------------------|
 | shell/.zshrc       | ~/.zshrc               |
-| shell/.p10k.zsh    | ~/.p10k.zsh            |
 | vim/.vimrc         | ~/.vimrc               |
 | config/nvim        | ~/.config/nvim         |
 | config/zellij      | ~/.config/zellij       |
