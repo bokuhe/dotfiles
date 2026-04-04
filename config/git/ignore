@@ -12,7 +12,3 @@ Desktop.ini
 # AI tools
 .claude/settings.local.json
 .omc/
-
-# Environment
-.env
-.env.local
