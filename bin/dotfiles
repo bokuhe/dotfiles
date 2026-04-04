@@ -24,6 +24,12 @@ has_remote() {
 # ---------------------------------------------------------------------------
 
 cmd_sync() {
+    if ! git -C "$DOTFILES_DIR" diff --quiet || ! git -C "$DOTFILES_DIR" diff --cached --quiet; then
+        echo -e "${YELLOW}You have uncommitted changes. Commit or stash them first.${RESET}"
+        git -C "$DOTFILES_DIR" status --short
+        return 1
+    fi
+
     echo -e "${BLUE}Pulling latest changes...${RESET}"
     git -C "$DOTFILES_DIR" pull --rebase
 
@@ -34,10 +40,22 @@ cmd_sync() {
 }
 
 cmd_push() {
-    git -C "$DOTFILES_DIR" add -A
+    echo -e "${BLUE}Changes to be staged:${RESET}"
+    git -C "$DOTFILES_DIR" status --short
 
-    echo -e "${BLUE}Staged changes:${RESET}"
-    git -C "$DOTFILES_DIR" diff --cached --stat
+    if [[ -z "$(git -C "$DOTFILES_DIR" status --porcelain)" ]]; then
+        echo -e "${YELLOW}Nothing to commit.${RESET}"
+        return
+    fi
+
+    printf "%b" "${YELLOW}Stage all changes? [Y/n]: ${RESET}"
+    read -r confirm
+    if [[ -n "$confirm" ]] && [[ "$confirm" != "y" ]] && [[ "$confirm" != "Y" ]]; then
+        echo -e "${YELLOW}Aborted.${RESET}"
+        return
+    fi
+
+    git -C "$DOTFILES_DIR" add -A
 
     if ! git -C "$DOTFILES_DIR" diff --cached --quiet; then
         printf "%b" "${YELLOW}Commit message (empty = 'Update dotfiles'): ${RESET}"

@@ -304,10 +304,9 @@ alias pyhttp='python3 -m http.server'
 #-------------------------------------------------------------
 # Ruby 
 #-------------------------------------------------------------
-RUBY_PATH="$HOME/.rbenv"
-[[ -d $RUBY_PATH ]] && \
-export PATH=$RUBY_PATH/versions/$(cat $HOME/.rbenv/version)/bin:$PATH && \
-eval "$(rbenv init -)"
+if [[ -d "$HOME/.rbenv" ]] && command -v rbenv &>/dev/null; then
+  eval "$(rbenv init -)"
+fi
   
 #-------------------------------------------------------------
 # Node 
@@ -536,13 +535,22 @@ export PATH="$HOME/.local/bin:$PATH"
 # Dotfiles update notification
 #-------------------------------------------------------------
 if [[ -d "$DOTFILES_DIR/.git" ]]; then
-  # Background fetch (non-blocking)
-  (git -C "$DOTFILES_DIR" fetch origin --quiet &) 2>/dev/null
+  # Background fetch (non-blocking) — save PID to avoid race condition
+  __dotfiles_fetch_pid=0
+  {
+    git -C "$DOTFILES_DIR" fetch origin --quiet &
+    __dotfiles_fetch_pid=$!
+  } 2>/dev/null
 
   # Check for updates once per session via precmd hook
   __dotfiles_checked=0
   __dotfiles_update_check() {
     [[ "$__dotfiles_checked" -eq 1 ]] && return
+
+    # If fetch is still running, defer to next precmd
+    if [[ "$__dotfiles_fetch_pid" -ne 0 ]] && kill -0 "$__dotfiles_fetch_pid" 2>/dev/null; then
+      return
+    fi
 
     local local_head remote_head branch remote_ref
     branch="$(git -C "$DOTFILES_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)" || return

@@ -66,7 +66,7 @@ link_item() {
         printf "%b" "${YELLOW}${display_target} already exists. Overwrite? [y/N]: ${RESET}"
         read -r answer
         if [[ "$answer" == "y" ]] || [[ "$answer" == "Y" ]]; then
-            local backup="${target}.backup.$(date +%Y%m%d)"
+            local backup="${target}.backup.$(date +%Y%m%d-%H%M%S)"
             mv "$target" "$backup"
             ln -s "$src" "$target"
             echo -e "${GREEN}[BACKUP + LINKED]${RESET}  $target (backup: $backup)"
