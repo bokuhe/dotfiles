@@ -348,7 +348,7 @@ for __nvm_cmd in nvm node npm npx; do
 done
 unset __nvm_cmd
 # Add latest installed node to PATH immediately (avoids loading nvm just for node binary)
-__nvm_node_dir="$(ls -d "$NVM_DIR/versions/node/"v* 2>/dev/null | sort -V | tail -1)"
+__nvm_node_dir="$(ls -d "$NVM_DIR/versions/node/"v* 2>/dev/null | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)"
 if [[ -n "$__nvm_node_dir" ]]; then
   export PATH="$__nvm_node_dir/bin:$PATH"
 fi
