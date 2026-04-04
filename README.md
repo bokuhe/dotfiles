@@ -17,6 +17,8 @@ cd ~/dotfiles
 ├── install.sh              # Interactive symlink installer with backup
 ├── shell/.zshrc            # Zsh config (oh-my-zsh, powerlevel10k, plugins)
 ├── shell/p10k.default.zsh  # Powerlevel10k default config (fallback)
+├── shell/git.zsh           # Git helper functions (tag, sync-tags)
+├── shell/update-check.zsh  # Dotfiles update notification on shell startup
 ├── vim/.vimrc              # Vim config
 ├── config/nvim/init.vim    # Neovim config (sources .vimrc)
 ├── config/zellij/config.kdl # Zellij terminal multiplexer config
@@ -52,14 +54,14 @@ The `bin/dotfiles` tool provides shortcuts for common operations. The `.zshrc` a
 
 ## Update Notifications
 
-On shell startup, `.zshrc` runs `git fetch` in the background (non-blocking). Once the fetch completes, a `precmd` hook compares local and remote HEAD. If updates are available, you will see a prompt:
+On shell startup, `.zshrc` sources `shell/update-check.zsh` which runs a synchronous `git fetch` with a 3-second timeout (via `perl alarm()`, portable across all platforms). It then compares local and remote HEAD. If updates are available, you will see a prompt:
 
 ```
 [dotfiles] Updates available (3 commit(s) behind).
 Apply now? [Y/n]:
 ```
 
-Enter or `y` runs `dotfiles sync`; `n` defers until the next session. The check runs at most once per session.
+Enter or `y` runs `dotfiles sync`; `n` skips the update.
 
 ## Supported Platforms
 

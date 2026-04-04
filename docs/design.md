@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository manages personal dotfiles across multiple machines and operating systems using symlinks, git, and shell-integrated update notifications. The goal is a simple, low-friction setup: clone once, run install, and all config files are live immediately. Updates propagate automatically via background git fetch and an interactive prompt on shell start.
+This repository manages personal dotfiles across multiple machines and operating systems using symlinks, git, and shell-integrated update notifications. The goal is a simple, low-friction setup: clone once, run install, and all config files are live immediately. Updates propagate automatically via a synchronous git fetch (with timeout) and an interactive prompt on shell start.
 
 Supported platforms: macOS and Linux (including WSL).
 
@@ -40,9 +40,20 @@ When the install script encounters an existing file at a symlink target, it prom
 
 The timestamp includes hours/minutes/seconds to prevent backup collisions when running `install.sh` multiple times on the same day.
 
-### Background update check
+### Synchronous update check with timeout
 
-`git fetch origin` runs in the background when a new shell session starts, so it never blocks interactive use. The fetch PID is tracked to avoid a race condition — the `precmd` hook defers the update check until the fetch has actually completed. Once the fetch finishes, the hook compares the local HEAD against the remote HEAD. If the local branch is behind, the shell presents an interactive prompt asking whether to apply updates. The default answer is yes.
+`git fetch origin` runs synchronously at shell startup with a 3-second timeout using `perl -e 'alarm(3); exec @ARGV'`. This avoids background job notifications (e.g., `[3] 40017`) and shows the update prompt immediately rather than requiring a keypress. The `perl alarm()` approach is portable across all supported platforms (macOS, Linux, WSL, Cygwin) without requiring additional tools like `timeout` or `gtimeout`. If the network is slow, the fetch times out after 3 seconds and the shell starts normally. The update check logic is extracted to `shell/update-check.zsh`.
+
+### Lazy-loaded nvm
+
+`nvm.sh` takes ~360ms to load eagerly. To avoid this on every shell start, nvm is lazy-loaded: stub functions for `nvm`, `node`, `npm`, and `npx` are defined at startup, and the real `nvm.sh` is sourced only on first invocation. The latest installed node version is added to `PATH` immediately so that `node`/`npm` binaries are available without triggering the full load.
+
+### Modular shell config
+
+Heavy or logically distinct sections of `.zshrc` are extracted to separate files under `shell/` and sourced from `.zshrc`. This keeps the main config readable and makes individual features easier to maintain. Current modules:
+
+- `shell/git.zsh` — Git helper functions (tag push/delete, tag sync)
+- `shell/update-check.zsh` — Dotfiles update notification
 
 ### No package management
 
@@ -74,17 +85,14 @@ Directory symlinks are used for tool configs under `~/.config/` to keep the syml
 
 ## Update Notification Flow
 
-1. Shell starts. `git fetch origin` is launched in the background (non-blocking). The PID is saved.
-2. On each `precmd`, the hook checks if the fetch PID is still running. If so, it defers to the next prompt.
-3. Once fetch completes, the hook compares local HEAD to remote HEAD.
-4. If local is behind remote, the shell prints a notification and prompts:
+1. Shell starts. `git fetch origin` runs synchronously with a 3-second timeout.
+2. Local HEAD is compared against remote HEAD.
+3. If local is behind remote, the shell prints a notification and prompts:
    ```
    Updates available. Apply now? [Y/n]:
    ```
-5. Enter or `y`: runs `dotfiles sync`, which pulls the latest commits and re-runs `install.sh` to apply any new symlinks.
-6. `n`: skips the update. The prompt is suppressed for the remainder of the session.
-
-The per-session flag ensures the prompt appears at most once, avoiding repetition across multiple terminal windows opened in the same session.
+4. Enter or `y`: runs `dotfiles sync`, which pulls the latest commits and re-runs `install.sh` to apply any new symlinks.
+5. `n`: skips the update.
 
 ### CLI Safety Guards
 
