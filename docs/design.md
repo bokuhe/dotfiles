@@ -24,7 +24,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 ```
 
-This keeps related configuration together and avoids the cognitive overhead of tracking which overlay applies where.
+This keeps related configuration together and avoids the cognitive overhead of tracking which overlay applies where. macOS-only sections (Java/Homebrew JDK, Android SDK paths) are wrapped in `OSTYPE` guards. Cross-platform sections (Android SDK) use OS-conditional paths with existence checks.
 
 ### Symlink everything regardless of installed tools
 
@@ -32,17 +32,17 @@ The install script creates all symlinks unconditionally, even for tools not inst
 
 ### Interactive install with backup
 
-When the install script encounters an existing file at a symlink target, it prompts for confirmation before overwriting. Existing files are backed up with a date suffix before being replaced:
+When the install script encounters an existing file at a symlink target, it prompts for confirmation before overwriting. Existing files are backed up with a timestamp suffix before being replaced:
 
 ```
-~/.zshrc  ->  ~/.zshrc.backup.20260404
+~/.zshrc  ->  ~/.zshrc.backup.20260404-153012
 ```
 
-This prevents silent data loss on first install.
+The timestamp includes hours/minutes/seconds to prevent backup collisions when running `install.sh` multiple times on the same day.
 
 ### Background update check
 
-`git fetch origin` runs in the background when a new shell session starts, so it never blocks interactive use. A `precmd` hook fires once per session to compare the local HEAD against the remote HEAD. If the local branch is behind, the shell presents an interactive prompt asking whether to apply updates. The default answer is yes.
+`git fetch origin` runs in the background when a new shell session starts, so it never blocks interactive use. The fetch PID is tracked to avoid a race condition — the `precmd` hook defers the update check until the fetch has actually completed. Once the fetch finishes, the hook compares the local HEAD against the remote HEAD. If the local branch is behind, the shell presents an interactive prompt asking whether to apply updates. The default answer is yes.
 
 ### No package management
 
@@ -74,16 +74,22 @@ Directory symlinks are used for tool configs under `~/.config/` to keep the syml
 
 ## Update Notification Flow
 
-1. Shell starts. `git fetch origin` is launched in the background (no blocking).
-2. First `precmd` invocation compares local HEAD to `origin/HEAD`.
-3. If local is behind remote, the shell prints a notification and prompts:
+1. Shell starts. `git fetch origin` is launched in the background (non-blocking). The PID is saved.
+2. On each `precmd`, the hook checks if the fetch PID is still running. If so, it defers to the next prompt.
+3. Once fetch completes, the hook compares local HEAD to remote HEAD.
+4. If local is behind remote, the shell prints a notification and prompts:
    ```
    Updates available. Apply now? [Y/n]:
    ```
-4. Enter or `y`: runs `dotfiles sync`, which pulls the latest commits and re-runs `install.sh` to apply any new symlinks.
-5. `n`: skips the update. The prompt is suppressed for the remainder of the session.
+5. Enter or `y`: runs `dotfiles sync`, which pulls the latest commits and re-runs `install.sh` to apply any new symlinks.
+6. `n`: skips the update. The prompt is suppressed for the remainder of the session.
 
 The per-session flag ensures the prompt appears at most once, avoiding repetition across multiple terminal windows opened in the same session.
+
+### CLI Safety Guards
+
+- `dotfiles sync` checks for uncommitted changes before running `git pull --rebase`. If the working tree is dirty, it aborts with a warning.
+- `dotfiles push` shows pending changes and asks for confirmation before staging with `git add -A`. This prevents accidentally committing unintended files.
 
 ---
 
