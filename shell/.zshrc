@@ -273,25 +273,27 @@ elif [ -d "/usr/local/bin" ]; then
 fi
 
 #-------------------------------------------------------------
-# Java
+# Java (macOS only - uses Homebrew and /usr/libexec/java_home)
 #-------------------------------------------------------------
-JDK_VERSION="17"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  JDK_VERSION="17"
 
-# Determine Homebrew prefix
-if [ -d "/opt/homebrew/opt" ]; then
-  HOMEBREW_PREFIX="/opt/homebrew"
-elif [ -d "/usr/local/opt" ]; then
-  HOMEBREW_PREFIX="/usr/local"
-fi
+  # Determine Homebrew prefix
+  if [ -d "/opt/homebrew/opt" ]; then
+    HOMEBREW_PREFIX="/opt/homebrew"
+  elif [ -d "/usr/local/opt" ]; then
+    HOMEBREW_PREFIX="/usr/local"
+  fi
 
-if [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/opt/openjdk@$JDK_VERSION/libexec/openjdk.jdk" ] && [ ! -L "/Library/Java/JavaVirtualMachines/openjdk-$JDK_VERSION.jdk" ]; then
-  sudo ln -sfn "$HOMEBREW_PREFIX/opt/openjdk@$JDK_VERSION/libexec/openjdk.jdk" "/Library/Java/JavaVirtualMachines/openjdk-$JDK_VERSION.jdk"
-fi
+  if [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/opt/openjdk@$JDK_VERSION/libexec/openjdk.jdk" ] && [ ! -L "/Library/Java/JavaVirtualMachines/openjdk-$JDK_VERSION.jdk" ]; then
+    sudo ln -sfn "$HOMEBREW_PREFIX/opt/openjdk@$JDK_VERSION/libexec/openjdk.jdk" "/Library/Java/JavaVirtualMachines/openjdk-$JDK_VERSION.jdk"
+  fi
 
-if JAVA_HOME=$(/usr/libexec/java_home -v $JDK_VERSION 2>/dev/null); then
-  export JAVA_HOME
-  export PATH="${PATH}:$JAVA_HOME/bin"
-  export CPPFLAGS="-I$JAVA_HOME/include"
+  if JAVA_HOME=$(/usr/libexec/java_home -v $JDK_VERSION 2>/dev/null); then
+    export JAVA_HOME
+    export PATH="${PATH}:$JAVA_HOME/bin"
+    export CPPFLAGS="-I$JAVA_HOME/include"
+  fi
 fi
 
 #-------------------------------------------------------------
@@ -350,8 +352,14 @@ export PATH="$HOME/.cargo/bin:$PATH"
 #-------------------------------------------------------------
 # Android
 #-------------------------------------------------------------
-export ANDROID_HOME=${HOME}/Library/Android/sdk
-export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  export ANDROID_HOME=${HOME}/Library/Android/sdk
+else
+  export ANDROID_HOME=${HOME}/Android/Sdk
+fi
+if [[ -d "$ANDROID_HOME" ]]; then
+  export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin
+fi
 
 #-------------------------------------------------------------
 # Flutter
