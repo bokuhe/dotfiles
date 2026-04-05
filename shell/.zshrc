@@ -471,7 +471,7 @@ elif command -v vim > /dev/null 2>&1; then
 fi
 
 # Add open command (Linux only, macOS has it built-in)
-if [[ "$(uname -r)" == *microsoft* ]]; then
+if [[ "$(uname -r)" == *microsoft* ]] || [[ "$OSTYPE" == cygwin* ]]; then
     alias open="explorer.exe"
 elif [[ "$(uname -s)" == "Linux" ]]; then
     alias open="xdg-open"
