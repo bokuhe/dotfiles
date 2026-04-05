@@ -5,7 +5,7 @@ __dotfiles_update_check() {
   [[ -d "$DOTFILES_DIR/.git" ]] || return
 
   # Synchronous fetch with timeout (3s) — portable via perl alarm()
-  perl -e 'alarm(3); exec @ARGV' git -C "$DOTFILES_DIR" fetch origin --quiet 2>/dev/null
+  ( perl -e 'alarm(3); exec @ARGV' git -C "$DOTFILES_DIR" fetch origin --quiet 2>/dev/null ) 2>/dev/null
 
   local branch remote_ref local_head remote_head
   branch="$(git -C "$DOTFILES_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)" || return
