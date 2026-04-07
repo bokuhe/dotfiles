@@ -474,3 +474,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # Dotfiles update notification
 #-------------------------------------------------------------
 source "$DOTFILES_DIR/shell/update-check.zsh"
+
+# OpenClaw Completion
+[ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
