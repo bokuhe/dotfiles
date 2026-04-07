@@ -271,6 +271,12 @@ load_plugins {
 web_client {
     font "monospace"
 }
+ui {
+    pane_frames {
+        rounded_corners true
+        hide_session_name true
+    }
+}
  
 // Use a simplified UI without special fonts (arrow glyphs)
 // Options:
@@ -327,7 +333,7 @@ theme "nord"
 //   - true (default, enabled)
 //   - false
 // 
-pane_frames false
+// pane_frames false
  
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)
