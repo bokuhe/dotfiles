@@ -53,6 +53,7 @@ The timestamp includes hours/minutes/seconds to prevent backup collisions when r
 Heavy or logically distinct sections of `.zshrc` are extracted to separate files under `shell/` and sourced from `.zshrc`. This keeps the main config readable and makes individual features easier to maintain. Current modules:
 
 - `shell/git.zsh` — Git helper functions (tag push/delete, tag sync)
+- `shell/sdkman.zsh` — SDKMAN (JVM SDK manager) init, guarded per-machine
 - `shell/update-check.zsh` — Dotfiles update notification
 
 ### No package management

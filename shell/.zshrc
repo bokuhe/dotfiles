@@ -298,6 +298,11 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 #-------------------------------------------------------------
+# SDKMAN (cross-platform JVM SDK manager — opt-in per machine)
+#-------------------------------------------------------------
+source "$DOTFILES_DIR/shell/sdkman.zsh"
+
+#-------------------------------------------------------------
 # Python
 #-------------------------------------------------------------
 alias pyhttp='python3 -m http.server'
