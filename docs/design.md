@@ -77,6 +77,7 @@ This repository manages config files only. Tool installation is intentionally ou
 | `vim/.vimrc` | `~/.vimrc` | file |
 | `config/nvim` | `~/.config/nvim` | directory |
 | `config/zellij` | `~/.config/zellij` | directory |
+| `config/kitty` | `~/.config/kitty` | directory |
 | `config/git` | `~/.config/git` | directory |
 
 Directory symlinks are used for tool configs under `~/.config/` to keep the symlink count manageable and to ensure new files added inside those directories are automatically tracked without updating the install script.

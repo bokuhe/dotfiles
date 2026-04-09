@@ -39,6 +39,7 @@ mappings=(
     "vim/.vimrc:$HOME/.vimrc"
     "config/nvim:$HOME/.config/nvim"
     "config/zellij:$HOME/.config/zellij"
+    "config/kitty:$HOME/.config/kitty"
     "config/git:$HOME/.config/git"
 )
 

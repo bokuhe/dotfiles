@@ -22,6 +22,7 @@ cd ~/dotfiles
 ├── vim/.vimrc              # Vim config
 ├── config/nvim/init.vim    # Neovim config (sources .vimrc)
 ├── config/zellij/config.kdl # Zellij terminal multiplexer config
+├── config/kitty/kitty.conf # Kitty terminal emulator config
 ├── config/git/ignore       # Global gitignore
 ├── assets/avatar.jpg       # Profile avatar
 ├── bin/dotfiles            # CLI tool (sync, push, status, edit, help)
@@ -38,6 +39,7 @@ cd ~/dotfiles
 | vim/.vimrc         | ~/.vimrc               |
 | config/nvim        | ~/.config/nvim         |
 | config/zellij      | ~/.config/zellij       |
+| config/kitty       | ~/.config/kitty        |
 | config/git         | ~/.config/git          |
 
 ## CLI Commands
