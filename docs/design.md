@@ -44,9 +44,11 @@ The timestamp includes hours/minutes/seconds to prevent backup collisions when r
 
 `git fetch origin` runs synchronously at shell startup with a 3-second timeout using `perl -e 'alarm(3); exec @ARGV'`. This avoids background job notifications (e.g., `[3] 40017`) and shows the update prompt immediately rather than requiring a keypress. The `perl alarm()` approach is portable across all supported platforms (macOS, Linux, WSL, Cygwin) without requiring additional tools like `timeout` or `gtimeout`. If the network is slow, the fetch times out after 3 seconds and the shell starts normally. The update check logic is extracted to `shell/update-check.zsh`.
 
-### Lazy-loaded nvm
+### Eagerly-loaded nvm
 
-`nvm.sh` takes ~360ms to load eagerly. To avoid this on every shell start, nvm is lazy-loaded: stub functions for `nvm`, `node`, `npm`, and `npx` are defined at startup, and the real `nvm.sh` is sourced only on first invocation. The latest installed node version is added to `PATH` immediately so that `node`/`npm` binaries are available without triggering the full load.
+`nvm.sh` is sourced eagerly at shell startup. A lazy-loaded variant was tried previously but had correctness issues (stub functions did not always hand off cleanly to the real `nvm`, and `node`/`npm` PATH resolution diverged from `nvm` state), so the setup was reverted to the standard eager load. The `.zshrc` tries OS-specific locations in order: Homebrew (`/opt/homebrew` → `/usr/local`) on macOS, then `$NVM_DIR/nvm.sh` as a fallback.
+
+This adds ~360ms to cold shell startup. Revisit lazy-loading if startup latency becomes a priority.
 
 ### Modular shell config
 
