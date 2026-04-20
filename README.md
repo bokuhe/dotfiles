@@ -25,7 +25,6 @@ cd ~/dotfiles
 ├── config/zellij/config.kdl # Zellij terminal multiplexer config
 ├── config/kitty/kitty.conf # Kitty terminal emulator config
 ├── config/git/ignore       # Global gitignore
-├── assets/avatar.jpg       # Profile avatar
 ├── bin/dotfiles            # CLI tool (sync, push, status, edit, help)
 └── docs/
     ├── design.md           # Design decisions
