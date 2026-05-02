@@ -56,7 +56,21 @@ Heavy or logically distinct sections of `.zshrc` are extracted to separate files
 
 - `shell/git.zsh` — Git helper functions (tag push/delete, tag sync)
 - `shell/sdkman.zsh` — SDKMAN (JVM SDK manager) init, guarded per-machine
+- `shell/mise.zsh` — mise (polyglot runtime version manager) init, guarded per-machine
 - `shell/update-check.zsh` — Dotfiles update notification
+
+### Runtime version manager init order
+
+When more than one runtime version manager is installed on the same machine (e.g. `nvm` and `mise`, or `rbenv` and `mise`), each one's activation prepends its shim or bin directory to `PATH`. The one initialized **last** wins, because its entries end up first in the lookup order.
+
+`shell/.zshrc` initializes them in this order:
+
+1. `sdkman` — only manages JVM tooling (`java`, `gradle`, …). No overlap with other managers, so its position does not matter.
+2. `rbenv` — prepends `~/.rbenv/shims`.
+3. `nvm` — prepends `$NVM_DIR/versions/node/<version>/bin`.
+4. `mise` — sourced from the bottom of `.zshrc`, after every other PATH-mutating block (including `$HOME/.local/bin`, OpenClaw completions, and the managers above).
+
+`mise` is intended to be the unified replacement for the older single-language managers, so it must come last on machines where both are still installed: that way `.tool-versions` resolution wins over a stale `nvm`/`rbenv` shim. If `mise` is not installed, `shell/mise.zsh` is a no-op and the older managers continue to work as before.
 
 ### No package management
 

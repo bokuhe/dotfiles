@@ -482,3 +482,11 @@ source "$DOTFILES_DIR/shell/update-check.zsh"
 
 # OpenClaw Completion
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
+
+#-------------------------------------------------------------
+# mise (polyglot runtime version manager — opt-in per machine)
+#
+# Sourced LAST so its shims sit at the front of PATH after rbenv/nvm/etc.
+# have already prepended theirs. See docs/design.md for rationale.
+#-------------------------------------------------------------
+source "$DOTFILES_DIR/shell/mise.zsh"

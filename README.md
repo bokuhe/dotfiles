@@ -19,6 +19,7 @@ cd ~/dotfiles
 ├── shell/p10k.default.zsh  # Powerlevel10k default config (fallback)
 ├── shell/git.zsh           # Git helper functions (tag, sync-tags)
 ├── shell/sdkman.zsh        # SDKMAN init (opt-in per machine)
+├── shell/mise.zsh          # mise init (opt-in per machine)
 ├── shell/update-check.zsh  # Dotfiles update notification on shell startup
 ├── vim/.vimrc              # Vim config
 ├── config/nvim/init.vim    # Neovim config (sources .vimrc)
