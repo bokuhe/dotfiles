@@ -80,6 +80,8 @@ This repository manages config files only. Tool installation is intentionally ou
 
 `p10k configure` generates machine-specific output based on terminal capabilities (fonts, unicode, colors). Rather than symlinking a shared config, the dotfiles repo stores a default at `shell/p10k.default.zsh`. The `.zshrc` loads `~/.p10k.zsh` if it exists (machine-local), otherwise falls back to the dotfiles default. This means new machines get a working prompt immediately, while existing machines keep their own configuration untouched.
 
+A consequence of this layout: when `~/.p10k.zsh` is absent and the user runs `p10k configure`, the wizard discovers the only existing source path (`shell/p10k.default.zsh`) and writes there directly, dirtying the repo. The README documents the recovery; the trade-off is accepted because the alternative — never bundling a fallback — would degrade the new-machine experience.
+
 ### Git config partially excluded
 
 `~/.gitconfig` is not managed by this repository because it typically contains machine-specific values such as credential helpers and user identity. Only `~/.config/git/ignore` (the global gitignore) is managed, as it contains patterns that apply universally.

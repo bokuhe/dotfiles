@@ -78,7 +78,21 @@ The installer creates symlinks for each entry in the mappings table. If a file o
 
 ## Powerlevel10k
 
-The repository includes `shell/p10k.default.zsh` as a fallback configuration. If `~/.p10k.zsh` exists on the machine (from running `p10k configure`), it takes priority. If not, the dotfiles default is used. This means new machines get a working prompt immediately without running `p10k configure`.
+The repository includes `shell/p10k.default.zsh` as a fallback configuration. `.zshrc` prefers `~/.p10k.zsh` (machine-local) over the default, so:
+
+- **New machines** get a working prompt with the bundled default — no setup needed.
+- **Per-machine theme override**: place a custom config at `~/.p10k.zsh` (run `p10k configure` or copy a config you like). The repo file stays untouched; only this machine sees the override.
+
+### Pitfall: `p10k configure` may modify the repo
+
+If `~/.p10k.zsh` does not exist when you run `p10k configure`, the wizard follows the source path it finds in `.zshrc` and may overwrite `shell/p10k.default.zsh` directly — polluting `dotfiles sync`, which refuses to run on a dirty tree. Recover by moving your customization out and reverting the repo file:
+
+```sh
+cp shell/p10k.default.zsh ~/.p10k.zsh
+git checkout -- shell/p10k.default.zsh
+```
+
+After this, future `p10k configure` runs will edit `~/.p10k.zsh` directly without touching the repo.
 
 ## Editing Configuration
 
