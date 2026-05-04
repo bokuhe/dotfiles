@@ -452,6 +452,11 @@ alias sublime='open -a "Sublime Text.app"'
 # Add Typora
 alias typora='open -a "Typora"'
 
+# Add UTM (utmctl) — macOS only
+if [[ -x "/Applications/UTM.app/Contents/MacOS/utmctl" ]]; then
+    alias utmctl='/Applications/UTM.app/Contents/MacOS/utmctl'
+fi
+
 # Add nvim (when installed)
 if command -v nvim > /dev/null 2>&1; then
     alias vi='nvim'
