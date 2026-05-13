@@ -24,7 +24,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 ```
 
-This keeps related configuration together and avoids the cognitive overhead of tracking which overlay applies where. macOS-only sections (Java/Homebrew JDK, Android SDK paths) are wrapped in `OSTYPE` guards. Cross-platform sections (Android SDK) use OS-conditional paths with existence checks.
+This keeps related configuration together and avoids the cognitive overhead of tracking which overlay applies where. macOS-only sections (Java/Homebrew JDK) are wrapped in `OSTYPE` guards. Cross-platform sections (Android SDK) use OS-conditional paths with existence checks.
 
 ### Symlink everything regardless of installed tools
 
@@ -71,6 +71,17 @@ When more than one runtime version manager is installed on the same machine (e.g
 4. `mise` — sourced from the bottom of `.zshrc`, after every other PATH-mutating block (including `$HOME/.local/bin`, OpenClaw completions, and the managers above).
 
 `mise` is intended to be the unified replacement for the older single-language managers, so it must come last on machines where both are still installed: that way `.tool-versions` resolution wins over a stale `nvm`/`rbenv` shim. If `mise` is not installed, `shell/mise.zsh` is a no-op and the older managers continue to work as before.
+
+### Android SDK paths gated per-directory
+
+`ANDROID_HOME` is set unconditionally based on `OSTYPE` (`~/Library/Android/sdk` on macOS, `~/Android/Sdk` elsewhere), then each SDK subdirectory is appended to `PATH` only after `[[ -d ... ]]` confirms it exists. This matters because the SDK layout has shifted over time and not every machine has every subdirectory:
+
+- `platform-tools/` — `adb`, `fastboot`. Always present on a working SDK install.
+- `emulator/` — `emulator` CLI. Required for `emulator -list-avds`, headless CI.
+- `cmdline-tools/latest/bin` — `sdkmanager`, `avdmanager`. Modern location (Android Studio 2021+). Required by Expo prebuild and `expo run:android` for license acceptance and on-demand package install.
+- `tools/`, `tools/bin/` — Legacy SDK Tools (deprecated, 25.3.0+). Kept on PATH only when the directory still exists, for backwards compatibility with older SDK installs.
+
+`ANDROID_SDK_ROOT` is exported as a mirror of `ANDROID_HOME` because some Gradle plugins and native modules still read the older variable name despite Google's deprecation. The cost is one extra `export`; the benefit is avoiding silent build failures on the React Native side.
 
 ### No package management
 

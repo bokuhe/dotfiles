@@ -351,6 +351,16 @@ export PATH="$HOME/.cargo/bin:$PATH"
   
 #-------------------------------------------------------------
 # Android
+#
+# Sets ANDROID_HOME (and ANDROID_SDK_ROOT for tools that still read it)
+# and adds the modern SDK directories to PATH only when they exist.
+# Required by React Native (Gradle) and Expo (`expo run:android`, prebuild).
+#
+# Layout assumed:
+#   $ANDROID_HOME/platform-tools         (adb, fastboot)
+#   $ANDROID_HOME/emulator               (emulator CLI)
+#   $ANDROID_HOME/cmdline-tools/latest/bin  (sdkmanager, avdmanager)
+#   $ANDROID_HOME/tools, tools/bin       (legacy, kept for old SDK installs)
 #-------------------------------------------------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
   export ANDROID_HOME=${HOME}/Library/Android/sdk
@@ -358,7 +368,13 @@ else
   export ANDROID_HOME=${HOME}/Android/Sdk
 fi
 if [[ -d "$ANDROID_HOME" ]]; then
-  export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin
+  export ANDROID_SDK_ROOT="$ANDROID_HOME"
+  [[ -d "$ANDROID_HOME/platform-tools" ]] && export PATH="$PATH:$ANDROID_HOME/platform-tools"
+  [[ -d "$ANDROID_HOME/emulator" ]] && export PATH="$PATH:$ANDROID_HOME/emulator"
+  [[ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ]] && export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
+  # Legacy SDK layout (pre-2021 Android Studio); kept for backwards compatibility.
+  [[ -d "$ANDROID_HOME/tools" ]] && export PATH="$PATH:$ANDROID_HOME/tools"
+  [[ -d "$ANDROID_HOME/tools/bin" ]] && export PATH="$PATH:$ANDROID_HOME/tools/bin"
 fi
 
 #-------------------------------------------------------------
