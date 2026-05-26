@@ -76,6 +76,8 @@ Enter or `y` runs `dotfiles sync`; `n` skips the update.
 
 The installer creates symlinks for each entry in the mappings table. If a file or directory already exists at the target path, you are prompted to overwrite it. Existing files are backed up with a timestamp suffix (e.g., `.zshrc.backup.20260404-153012`) before the symlink is created.
 
+`install.sh` installs no tools — it only manages symlinks. On the **first zsh startup** after install, `.zshrc` self-installs the zsh framework it depends on: oh-my-zsh (if missing), the Powerlevel10k theme, and the custom plugins (`zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-z`). Each step is guarded by an existence check and is a no-op once installed, so it only runs on a fresh machine and requires network access (and `git` plus `curl`/`wget`) that first time. See `docs/design.md` → "zsh framework bootstrap from .zshrc".
+
 ## Powerlevel10k
 
 The repository includes `shell/p10k.default.zsh` as a fallback configuration. `.zshrc` prefers `~/.p10k.zsh` (machine-local) over the default, so:

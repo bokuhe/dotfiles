@@ -87,6 +87,16 @@ When more than one runtime version manager is installed on the same machine (e.g
 
 This repository manages config files only. Tool installation is intentionally out of scope. Each machine may have a different set of tools installed, and coupling config management to package installation would add complexity without proportional benefit.
 
+### zsh framework bootstrap from .zshrc
+
+There is one deliberate exception to "no package management": the zsh framework that `.zshrc` itself depends on. Unlike optional tools (`nvim`, `mise`, SDKMAN…), the config is *non-functional* without oh-my-zsh — `source $ZSH/oh-my-zsh.sh` errors out and the prompt/theme/plugins never load. So `.zshrc` bootstraps its own hard dependencies on first run, each guarded by an existence check:
+
+1. **oh-my-zsh** — if `$ZSH/oh-my-zsh.sh` is missing, run the official unattended installer with `KEEP_ZSHRC=yes` (so it does not replace our symlinked `~/.zshrc`) and `--unattended` (no prompts, no `chsh`, no shell relaunch). Uses `curl`, or `wget` if `curl` isn't installed.
+2. **Powerlevel10k theme** — cloned into `$ZSH_CUSTOM/themes/powerlevel10k` if absent.
+3. **Custom plugins** (`zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-z`) — cloned into `$ZSH_CUSTOM/plugins/` if absent.
+
+Order matters: the oh-my-zsh guard runs **before** the theme and plugin clones, because those install into `$ZSH/custom` and assume the framework directory already exists. This keeps the boundary clean — `install.sh` installs no tools and only manages config symlinks, while `.zshrc` self-heals the specific dependencies it cannot run without. All three steps are no-ops once installed, so the cost is paid only on a fresh machine.
+
 ### Powerlevel10k config as fallback only
 
 `p10k configure` generates machine-specific output based on terminal capabilities (fonts, unicode, colors). Rather than symlinking a shared config, the dotfiles repo stores a default at `shell/p10k.default.zsh`. The `.zshrc` loads `~/.p10k.zsh` if it exists (machine-local), otherwise falls back to the dotfiles default. This means new machines get a working prompt immediately, while existing machines keep their own configuration untouched.

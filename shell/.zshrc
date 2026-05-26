@@ -14,6 +14,24 @@ fi
   
 # Path to your oh-my-zsh installation.
 export ZSH="${HOME}/.oh-my-zsh"
+
+# oh-my-zsh (auto-install if missing). Must run before the theme/plugin
+# clones below, which install into $ZSH/custom and assume the framework exists.
+if [[ ! -f "$ZSH/oh-my-zsh.sh" ]]; then
+  echo "Installing oh-my-zsh..."
+  # KEEP_ZSHRC=yes preserves our symlinked ~/.zshrc (the installer would
+  # otherwise back it up and drop in its own template, breaking the symlink).
+  # --unattended skips the prompts, chsh, and shell relaunch.
+  if command -v curl >/dev/null 2>&1; then
+    RUNZSH=no KEEP_ZSHRC=yes sh -c \
+      "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  elif command -v wget >/dev/null 2>&1; then
+    RUNZSH=no KEEP_ZSHRC=yes sh -c \
+      "$(wget -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  else
+    echo "[dotfiles] curl/wget not found; cannot auto-install oh-my-zsh." >&2
+  fi
+fi
   
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
