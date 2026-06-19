@@ -40,6 +40,7 @@ mappings=(
     "config/nvim:$HOME/.config/nvim"
     "config/zellij:$HOME/.config/zellij"
     "config/kitty:$HOME/.config/kitty"
+    "config/ghostty:$HOME/.config/ghostty"
     "config/git:$HOME/.config/git"
 )
 

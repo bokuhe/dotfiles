@@ -1,0 +1,60 @@
+# Ghostty terminal emulator config
+#
+# Shared across macOS and Linux: Ghostty reads ~/.config/ghostty/config (the
+# XDG path) on both platforms, so a single symlinked file works everywhere.
+# Mirrors the kitty setup (Dracula + MesloLGS NF) for a consistent look.
+
+# --- Appearance -------------------------------------------------------------
+
+# Dracula is one of Ghostty's 300+ built-in themes (run `ghostty +list-themes`).
+# Matches config/kitty/current-theme.conf.
+theme = Dracula
+
+# MesloLGS NF is powerlevel10k's recommended font (installed by `p10k configure`).
+# It is single-width, which is required by POWERLEVEL9K_ICON_PADDING=none in
+# shell/p10k.default.zsh so prompt icons occupy exactly one cell.
+font-family = MesloLGS NF
+font-size = 12
+
+# 0 = fully transparent, 1 = opaque. Matches kitty's background_opacity 0.80.
+background-opacity = 0.8
+
+# kitty window_padding_width 4 (points, DPI-scaled).
+window-padding-x = 4
+window-padding-y = 4
+window-padding-balance = true
+
+# --- Cursor -----------------------------------------------------------------
+
+cursor-style = block
+# kitty cursor_blink_interval -1 (never blink).
+cursor-style-blink = false
+
+# --- Behavior ---------------------------------------------------------------
+
+# `clipboard` (not `true`) so selected text lands in the system clipboard and
+# ctrl+v pastes it — matches kitty's copy_on_select yes.
+copy-on-select = clipboard
+
+mouse-hide-while-typing = true
+
+# Start maximized, like kitty's os_window_state maximized (Ghostty >= 1.1.0).
+maximize = true
+
+# scrollback-limit is in BYTES (default 10 MB), unlike kitty's 10000 lines.
+# The default already far exceeds 10000 lines, so it is left unset.
+
+# --- Keybindings ------------------------------------------------------------
+# ctrl+shift+c / ctrl+shift+v are already the Linux defaults; setting them here
+# makes copy/paste consistent on macOS too (alongside the default cmd+c/cmd+v).
+keybind = f11=toggle_fullscreen
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
+
+# --- SSH / terminfo note ----------------------------------------------------
+# Ghostty advertises TERM=xterm-ghostty, whose terminfo may be missing on remote
+# hosts (garbled keys/colors over SSH). Fixes, in order of preference:
+#   1. Copy the terminfo to the remote:  infocmp -x | ssh HOST -- tic -x -
+#   2. Or uncomment the line below to fall back to a universally-known TERM
+#      (loses a few Ghostty-specific capabilities).
+# term = xterm-256color

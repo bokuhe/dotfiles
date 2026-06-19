@@ -107,6 +107,14 @@ A consequence of this layout: when `~/.p10k.zsh` is absent and the user runs `p1
 
 `~/.gitconfig` is not managed by this repository because it typically contains machine-specific values such as credential helpers and user identity. Only `~/.config/git/ignore` (the global gitignore) is managed, as it contains patterns that apply universally.
 
+### Ghostty config shared via a single XDG symlink
+
+Ghostty reads `~/.config/ghostty/config` on both macOS and Linux (macOS additionally checks `~/Library/Application Support/com.mitchellh.ghostty/config`, but the XDG path takes precedence and is honored everywhere). Because the same path works on every supported platform, the config is symlinked directly like the other `~/.config/` tools — no per-machine fallback is needed, unlike Powerlevel10k.
+
+The config intentionally mirrors `config/kitty` (Dracula theme, MesloLGS NF font, 0.80 opacity, 4px padding, block cursor, copy-on-select) so the two terminals look and behave identically. Dracula is referenced as a built-in Ghostty theme rather than vendored, since Ghostty ships the iTerm2 color-scheme collection. One deliberate non-default: `copy-on-select = clipboard` (not the `true`/`primary` default) so selections reach the system clipboard and `ctrl+v` pastes them, matching kitty's `copy_on_select yes` across both Linux and macOS.
+
+Both terminals use **MesloLGS NF**, the font powerlevel10k recommends and installs via `p10k configure`. It is single-width, which `shell/p10k.default.zsh` requires: that config sets `POWERLEVEL9K_ICON_PADDING=none`, so prompt icons must occupy exactly one cell or they overlap adjacent text. The font itself is not vendored in this repo (the repo manages config only — see "No package management"); each machine installs it via `p10k configure` or by dropping the four `MesloLGS NF *.ttf` files into its font directory.
+
 ---
 
 ## Symlink Mapping
@@ -118,6 +126,7 @@ A consequence of this layout: when `~/.p10k.zsh` is absent and the user runs `p1
 | `config/nvim` | `~/.config/nvim` | directory |
 | `config/zellij` | `~/.config/zellij` | directory |
 | `config/kitty` | `~/.config/kitty` | directory |
+| `config/ghostty` | `~/.config/ghostty` | directory |
 | `config/git` | `~/.config/git` | directory |
 
 Directory symlinks are used for tool configs under `~/.config/` to keep the symlink count manageable and to ensure new files added inside those directories are automatically tracked without updating the install script.

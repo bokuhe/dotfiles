@@ -25,6 +25,7 @@ cd ~/dotfiles
 ├── config/nvim/init.vim    # Neovim config (sources .vimrc)
 ├── config/zellij/config.kdl # Zellij terminal multiplexer config
 ├── config/kitty/kitty.conf # Kitty terminal emulator config
+├── config/ghostty/config   # Ghostty terminal emulator config
 ├── config/git/ignore       # Global gitignore
 ├── bin/dotfiles            # CLI tool (sync, push, status, edit, help)
 └── docs/
@@ -41,6 +42,7 @@ cd ~/dotfiles
 | config/nvim        | ~/.config/nvim         |
 | config/zellij      | ~/.config/zellij       |
 | config/kitty       | ~/.config/kitty        |
+| config/ghostty     | ~/.config/ghostty      |
 | config/git         | ~/.config/git          |
 
 ## CLI Commands
