@@ -58,6 +58,7 @@ Heavy or logically distinct sections of `.zshrc` are extracted to separate files
 - `shell/sdkman.zsh` — SDKMAN (JVM SDK manager) init, guarded per-machine
 - `shell/mise.zsh` — mise (polyglot runtime version manager) init, guarded per-machine
 - `shell/update-check.zsh` — Dotfiles update notification
+- `shell/plugin-update.zsh` — Throttled background auto-update for the oh-my-zsh framework, theme, and custom plugins
 - `shell/fastfetch.zsh` — fastfetch system-info banner on shell startup, guarded per-machine
 
 ### Runtime version manager init order
@@ -97,6 +98,19 @@ There is one deliberate exception to "no package management": the zsh framework 
 3. **Custom plugins** (`zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-z`) — cloned into `$ZSH_CUSTOM/plugins/` if absent.
 
 Order matters: the oh-my-zsh guard runs **before** the theme and plugin clones, because those install into `$ZSH/custom` and assume the framework directory already exists. This keeps the boundary clean — `install.sh` installs no tools and only manages config symlinks, while `.zshrc` self-heals the specific dependencies it cannot run without. All three steps are no-ops once installed, so the cost is paid only on a fresh machine.
+
+### Third-party plugin auto-update
+
+The bootstrap above is install-if-missing only: once a repo exists it is never touched again. Over time the pinned clones drift years behind upstream — a 2021-era Powerlevel10k, for instance, does not recognize newer prompt modes (`nerdfont-v3`) and silently falls back to ASCII icons (the Apple logo rendered as the literal text `OSX`). `shell/plugin-update.zsh` closes the gap without reintroducing per-startup latency.
+
+Design choices:
+
+- **Throttled, not per-startup.** A timestamp file (`$XDG_CACHE_HOME/zsh-plugin-update-check`) gates the check to once every `ZSH_PLUGIN_UPDATE_DAYS` days (default 7). The stamp is touched *before* the work runs, so a flaky network does not cause a retry on every shell.
+- **Backgrounded.** The fetch/reset runs in a detached subshell, so startup stays instant; updates apply on the next launch. This differs from `update-check.zsh`, which is synchronous and interactive — appropriate there because the dotfiles repo update needs a user decision, whereas third-party fast-forwards need none.
+- **`reset --hard FETCH_HEAD` after a `--depth=1` fetch.** Reliable for both shallow and full clones (shallow history is not a known ancestor of the remote, so `merge --ff-only` can refuse). Repos with uncommitted local changes are skipped via `git status --porcelain`, so the reset never clobbers hand edits.
+- **Opt-out.** `ZSH_PLUGIN_UPDATE_DAYS=0` disables the check entirely.
+
+The managed set mirrors the bootstrap list: the oh-my-zsh framework, the Powerlevel10k theme, and the three custom plugins.
 
 ### Powerlevel10k config as fallback only
 

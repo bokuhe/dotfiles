@@ -519,6 +519,11 @@ export PATH="$HOME/.local/bin:$PATH"
 #-------------------------------------------------------------
 source "$DOTFILES_DIR/shell/update-check.zsh"
 
+#-------------------------------------------------------------
+# Third-party zsh plugin/theme auto-update (throttled)
+#-------------------------------------------------------------
+source "$DOTFILES_DIR/shell/plugin-update.zsh"
+
 # OpenClaw Completion
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
 

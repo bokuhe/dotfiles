@@ -21,6 +21,7 @@ cd ~/dotfiles
 ├── shell/sdkman.zsh        # SDKMAN init (opt-in per machine)
 ├── shell/mise.zsh          # mise init (opt-in per machine)
 ├── shell/update-check.zsh  # Dotfiles update notification on shell startup
+├── shell/plugin-update.zsh # Throttled auto-update for oh-my-zsh/theme/plugins
 ├── shell/fastfetch.zsh     # fastfetch system-info banner on shell startup (opt-in)
 ├── vim/.vimrc              # Vim config
 ├── config/nvim/init.vim    # Neovim config (sources .vimrc)
@@ -80,6 +81,8 @@ Enter or `y` runs `dotfiles sync`; `n` skips the update.
 The installer creates symlinks for each entry in the mappings table. If a file or directory already exists at the target path, you are prompted to overwrite it. Existing files are backed up with a timestamp suffix (e.g., `.zshrc.backup.20260404-153012`) before the symlink is created.
 
 `install.sh` installs no tools — it only manages symlinks. On the **first zsh startup** after install, `.zshrc` self-installs the zsh framework it depends on: oh-my-zsh (if missing), the Powerlevel10k theme, and the custom plugins (`zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-z`). Each step is guarded by an existence check and is a no-op once installed, so it only runs on a fresh machine and requires network access (and `git` plus `curl`/`wget`) that first time. See `docs/design.md` → "zsh framework bootstrap from .zshrc".
+
+Because those clones are install-if-missing only, they would otherwise never refresh and go stale (a years-old theme can fail to render newer prompt modes). `shell/plugin-update.zsh` closes that gap: at most once every `ZSH_PLUGIN_UPDATE_DAYS` days (default 7) it fast-forwards each managed repo in the background, so startup stays instant and updates land on the next launch. Set `ZSH_PLUGIN_UPDATE_DAYS=0` to disable. See `docs/design.md` → "Third-party plugin auto-update".
 
 ## Powerlevel10k
 
