@@ -523,6 +523,15 @@ source "$DOTFILES_DIR/shell/update-check.zsh"
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
 
 #-------------------------------------------------------------
+# fastfetch (system info banner on shell startup — opt-in per machine)
+#
+# Sourced after the update check (so its synchronous fetch finishes first)
+# and before mise, so the banner paints right above the prompt. Display-only,
+# so it does not affect mise's last-on-PATH position.
+#-------------------------------------------------------------
+source "$DOTFILES_DIR/shell/fastfetch.zsh"
+
+#-------------------------------------------------------------
 # mise (polyglot runtime version manager — opt-in per machine)
 #
 # Sourced LAST so its shims sit at the front of PATH after rbenv/nvm/etc.

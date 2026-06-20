@@ -58,6 +58,7 @@ Heavy or logically distinct sections of `.zshrc` are extracted to separate files
 - `shell/sdkman.zsh` — SDKMAN (JVM SDK manager) init, guarded per-machine
 - `shell/mise.zsh` — mise (polyglot runtime version manager) init, guarded per-machine
 - `shell/update-check.zsh` — Dotfiles update notification
+- `shell/fastfetch.zsh` — fastfetch system-info banner on shell startup, guarded per-machine
 
 ### Runtime version manager init order
 
@@ -114,6 +115,16 @@ Ghostty reads `~/.config/ghostty/config` on both macOS and Linux (macOS addition
 The config intentionally mirrors `config/kitty` (Dracula theme, MesloLGS NF font, 0.80 opacity, 4px padding, block cursor, copy-on-select) so the two terminals look and behave identically. Dracula is referenced as a built-in Ghostty theme rather than vendored, since Ghostty ships the iTerm2 color-scheme collection. One deliberate non-default: `copy-on-select = clipboard` (not the `true`/`primary` default) so selections reach the system clipboard and `ctrl+v` pastes them, matching kitty's `copy_on_select yes` across both Linux and macOS.
 
 Both terminals use **MesloLGS NF**, the font powerlevel10k recommends and installs via `p10k configure`. It is single-width, which `shell/p10k.default.zsh` requires: that config sets `POWERLEVEL9K_ICON_PADDING=none`, so prompt icons must occupy exactly one cell or they overlap adjacent text. The font itself is not vendored in this repo (the repo manages config only — see "No package management"); each machine installs it via `p10k configure` or by dropping the four `MesloLGS NF *.ttf` files into its font directory.
+
+### fastfetch system-info banner on shell startup
+
+`shell/fastfetch.zsh` prints a system summary every time an interactive terminal opens. Like the other optional tools, it is a no-op on machines where the tool is absent — three cheapest-first guards must all pass before fastfetch runs: `[[ -o interactive ]]` (skip scripts and `zsh -c`), `[[ -t 1 ]]` (skip when stdout is captured or piped, so it never pollutes command substitution), and `command -v fastfetch` (skip when not installed). The binary is named `fastfetch` on every supported platform, so a single guarded call covers all of them with no OS conditionals.
+
+Installation, however, is not uniform — per the official docs (`github.com/fastfetch-cli/fastfetch`) fastfetch is not yet in most stable distro repositories. macOS uses Homebrew and Fedora's `dnf` carries it, but Ubuntu only ships it from 25.04 onward (Debian from 13); older Ubuntu — including the typical WSL image — needs the `ppa:zhangsongcui3371/fastfetch` PPA or a `.deb` from GitHub releases, and Cygwin has no package at all, so it relies on the native Windows build installed via `winget` (or `scoop`/`choco`). Because tool installation is out of scope here (see "No package management"), the guard simply makes the banner a no-op wherever fastfetch has not been installed; the per-platform commands live in the header of `shell/fastfetch.zsh`.
+
+The banner uses fastfetch's bundled `archey.jsonc` preset rather than a vendored config. Referencing the preset by name keeps the repo free of a fastfetch config to maintain, and because fastfetch resolves a bare name through its config dir before its built-in presets, a machine that wants something different can still drop its own `archey.jsonc` into `~/.config/fastfetch/` to override — the same machine-local-overrides-default pattern used for Powerlevel10k.
+
+It is sourced near the bottom of `.zshrc`: **after** `shell/update-check.zsh`, so the update check's synchronous (up to 3s) `git fetch` completes before the banner is drawn rather than freezing the screen below it, and **before** `shell/mise.zsh`, so the banner paints right above the prompt while mise keeps its required last-on-PATH position (the banner is display-only and touches no PATH).
 
 ---
 

@@ -21,6 +21,7 @@ cd ~/dotfiles
 ├── shell/sdkman.zsh        # SDKMAN init (opt-in per machine)
 ├── shell/mise.zsh          # mise init (opt-in per machine)
 ├── shell/update-check.zsh  # Dotfiles update notification on shell startup
+├── shell/fastfetch.zsh     # fastfetch system-info banner on shell startup (opt-in)
 ├── vim/.vimrc              # Vim config
 ├── config/nvim/init.vim    # Neovim config (sources .vimrc)
 ├── config/zellij/config.kdl # Zellij terminal multiplexer config
