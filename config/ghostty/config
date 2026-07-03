@@ -70,10 +70,14 @@ keybind = ctrl+shift+v=paste_from_clipboard
 keybind = alt+left=unbind
 keybind = alt+right=unbind
 
-# --- SSH / terminfo note ----------------------------------------------------
-# Ghostty advertises TERM=xterm-ghostty, whose terminfo may be missing on remote
-# hosts (garbled keys/colors over SSH). Fixes, in order of preference:
-#   1. Copy the terminfo to the remote:  infocmp -x | ssh HOST -- tic -x -
-#   2. Or uncomment the line below to fall back to a universally-known TERM
-#      (loses a few Ghostty-specific capabilities).
+# --- SSH / terminfo ----------------------------------------------------------
+# Ghostty advertises TERM=xterm-ghostty, whose terminfo is missing on remote
+# hosts without Ghostty (garbled keys/colors over SSH — macOS ships no
+# xterm-ghostty entry in /usr/share/terminfo). Local sessions are unaffected;
+# these features only kick in when running `ssh` from inside Ghostty:
+#   ssh-terminfo — auto-install Ghostty's terminfo on the remote via tic
+#   ssh-env      — otherwise fall back to TERM=xterm-256color for that session
+# Unlisted features (cursor, title, ...) keep their defaults. Requires >= 1.2.
+shell-integration-features = ssh-env,ssh-terminfo
+# Last-resort global fallback (loses Ghostty-specific capabilities locally):
 # term = xterm-256color
