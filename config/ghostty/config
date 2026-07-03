@@ -2,22 +2,34 @@
 #
 # Shared across macOS and Linux: Ghostty reads ~/.config/ghostty/config (the
 # XDG path) on both platforms, so a single symlinked file works everywhere.
-# Mirrors the kitty setup (Dracula + MesloLGS NF) for a consistent look.
+#
+# NOTE: on macOS Ghostty ALSO loads
+#   ~/Library/Application Support/com.mitchellh.ghostty/config
+# AFTER this file, so anything set there silently overrides this one. That
+# file is kept intentionally empty — put every setting here. macOS-only keys
+# (macos-*) are inert on Linux, so they are safe in this shared file.
 
 # --- Appearance -------------------------------------------------------------
 
-# Dracula is one of Ghostty's 300+ built-in themes (run `ghostty +list-themes`).
-# Matches config/kitty/current-theme.conf.
-theme = Dracula
+# Catppuccin Mocha is one of Ghostty's 300+ built-in themes (`ghostty +list-themes`).
+# Deliberately diverges from kitty's Dracula (config/kitty/current-theme.conf).
+theme = Catppuccin Mocha
 
 # MesloLGS NF is powerlevel10k's recommended font (installed by `p10k configure`).
 # It is single-width, which is required by POWERLEVEL9K_ICON_PADDING=none in
 # shell/p10k.default.zsh so prompt icons occupy exactly one cell.
+# Repeated font-family lines are fallbacks, tried in order: JetBrainsMono NF
+# covers glyphs Meslo lacks; Apple SD Gothic Neo renders Korean (macOS system
+# font — absent on Linux, where Ghostty skips it and fontconfig takes over).
 font-family = MesloLGS NF
+font-family = JetBrainsMono Nerd Font
+font-family = Apple SD Gothic Neo
 font-size = 12
 
-# 0 = fully transparent, 1 = opaque. Matches kitty's background_opacity 0.80.
+# 0 = fully transparent, 1 = opaque.
 background-opacity = 0.8
+# Blur what's behind the transparent background (macOS and KDE; no-op elsewhere).
+background-blur = true
 
 # kitty window_padding_width 4 (points, DPI-scaled).
 window-padding-x = 4
@@ -41,6 +53,9 @@ mouse-hide-while-typing = true
 # Start maximized, like kitty's os_window_state maximized (Ghostty >= 1.1.0).
 maximize = true
 
+# Option acts as Alt/Meta (zsh word motions, TUI alt bindings). macOS-only key.
+macos-option-as-alt = true
+
 # scrollback-limit is in BYTES (default 10 MB), unlike kitty's 10000 lines.
 # The default already far exceeds 10000 lines, so it is left unset.
 
@@ -50,6 +65,10 @@ maximize = true
 keybind = f11=toggle_fullscreen
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+v=paste_from_clipboard
+# Ghostty's macOS defaults map alt+left/right to esc+b/esc+f word jumps, which
+# swallows the keys before Zellij sees them; unbind so Zellij navigation works.
+keybind = alt+left=unbind
+keybind = alt+right=unbind
 
 # --- SSH / terminfo note ----------------------------------------------------
 # Ghostty advertises TERM=xterm-ghostty, whose terminfo may be missing on remote
