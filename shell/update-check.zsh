@@ -4,6 +4,16 @@
 __dotfiles_update_check() {
   [[ -d "$DOTFILES_DIR/.git" ]] || return
 
+  # Uncommitted changes to tracked files: the same condition that makes
+  # `dotfiles sync` abort. Untracked files don't block a pull, so they're ignored.
+  local dirty
+  dirty="$(git -C "$DOTFILES_DIR" status --porcelain --untracked-files=no 2>/dev/null)"
+  if [[ -n "$dirty" ]]; then
+    echo ""
+    echo -e "\033[1;33m[dotfiles]\033[0m Uncommitted changes. 'dotfiles sync' is blocked until they are committed (dotfiles push) or stashed:"
+    printf '  %s\n' "${(@f)dirty}"
+  fi
+
   # Synchronous fetch with timeout (3s) — portable via perl alarm()
   ( perl -e 'alarm(3); exec @ARGV' git -C "$DOTFILES_DIR" fetch origin --quiet 2>/dev/null ) 2>/dev/null
 
@@ -20,6 +30,11 @@ __dotfiles_update_check() {
     behind="$(git -C "$DOTFILES_DIR" rev-list --count "HEAD..${remote_ref}" 2>/dev/null || echo 0)"
     if [[ "$behind" -gt 0 ]]; then
       echo ""
+      if [[ -n "$dirty" ]]; then
+        # `dotfiles sync` would refuse anyway, so don't offer it.
+        echo -e "\033[0;34m[dotfiles]\033[0m Updates available (${behind} commit(s) behind). Resolve the changes above, then run: dotfiles sync"
+        return
+      fi
       echo -e "\033[0;34m[dotfiles]\033[0m Updates available (${behind} commit(s) behind)."
       printf "\033[0;34mApply now? [Y/n]: \033[0m"
       read -r answer

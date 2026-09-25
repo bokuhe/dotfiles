@@ -170,14 +170,16 @@ Directory symlinks are used for tool configs under `~/.config/` to keep the syml
 
 ## Update Notification Flow
 
-1. Shell starts. `git fetch origin` runs synchronously with a 3-second timeout.
-2. Local HEAD is compared against remote HEAD.
-3. If local is behind remote, the shell prints a notification and prompts:
+1. Shell starts. If tracked files have uncommitted changes, they are listed with a warning. This uses the same test as `dotfiles sync` (`git status --porcelain --untracked-files=no`), so untracked files don't count. Tools that write into the symlinked config (openclaw's completion installer, `p10k configure`) can dirty the repo silently; without this, the first sign is a refused pull days later.
+2. `git fetch origin` runs synchronously with a 3-second timeout.
+3. Local HEAD is compared against remote HEAD.
+4. If local is behind remote and the tree is clean, the shell prints a notification and prompts:
    ```
    Updates available. Apply now? [Y/n]:
    ```
-4. Enter or `y`: runs `dotfiles sync`, which pulls the latest commits and re-runs `install.sh` to apply any new symlinks.
-5. `n`: skips the update.
+   If the tree is dirty, the prompt is skipped (`dotfiles sync` would abort anyway) in favor of a one-line reminder to resolve the changes and run `dotfiles sync` afterwards.
+5. Enter or `y`: runs `dotfiles sync`, which pulls the latest commits and re-runs `install.sh` to apply any new symlinks.
+6. `n`: skips the update.
 
 ### CLI Safety Guards
 

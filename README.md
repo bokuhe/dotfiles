@@ -70,6 +70,15 @@ Apply now? [Y/n]:
 
 Enter or `y` runs `dotfiles sync`; `n` skips the update.
 
+If tracked files have uncommitted changes (the condition under which `dotfiles sync` refuses to pull), startup also lists them:
+
+```
+[dotfiles] Uncommitted changes. 'dotfiles sync' is blocked until they are committed (dotfiles push) or stashed:
+   M shell/.zshrc
+```
+
+When updates are available at the same time, the `Apply now?` prompt is skipped in favor of a one-line reminder to resolve the changes first. Untracked files are ignored since they don't block a pull.
+
 ## Supported Platforms
 
 - macOS (Intel and Apple Silicon)
