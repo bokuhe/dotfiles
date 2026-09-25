@@ -144,6 +144,12 @@ The banner uses fastfetch's bundled `archey.jsonc` preset rather than a vendored
 
 It is sourced near the bottom of `.zshrc`: **after** `shell/update-check.zsh`, so the update check's synchronous (up to 3s) `git fetch` completes before the banner is drawn rather than freezing the screen below it, and **before** `shell/mise.zsh`, so the banner paints right above the prompt while mise keeps its required last-on-PATH position (the banner is display-only and touches no PATH).
 
+
+### OpenClaw completion coexisting with its installer
+
+The `openclaw` CLI manages its own completion snippet in `~/.zshrc`, which here is a symlink into the repo. Its `update`/`doctor`/`setup` flows treat the profile as configured when they find a line that is exactly `# OpenClaw Completion` (or one containing the machine-specific absolute cache path); if neither is present they append their own block, hardcoded to `/Users/<user>/.openclaw/...`, at the end of the file. The explicit `openclaw completion --install` goes further: it deletes that header **and the single line below it**, deletes any line containing the absolute path, and re-appends the hardcoded block.
+
+`.zshrc` therefore keeps the exact header as a marker so the automatic flows never touch the file, parks a throwaway comment in the slot directly under it, and on the line after that sources `${OPENCLAW_STATE_DIR:-$HOME/.openclaw}/completions/openclaw.zsh` — the same resolution the CLI itself uses. That line matches none of the installer's patterns (not the header, no literal `openclaw completion`, no absolute path), so it survives a `--install`. The accepted cost: an explicit `--install` still appends a duplicate absolute-path block at EOF — a harmless double-source, reverted with `git checkout shell/.zshrc`. A local, untracked `~/.zshrc` stub that sources the repo file would remove even that, at the price of changing the symlink scheme in `install.sh`.
 ---
 
 ## Symlink Mapping

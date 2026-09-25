@@ -524,8 +524,21 @@ source "$DOTFILES_DIR/shell/update-check.zsh"
 #-------------------------------------------------------------
 source "$DOTFILES_DIR/shell/plugin-update.zsh"
 
+#-------------------------------------------------------------
+# OpenClaw CLI completion (opt-in per machine)
+#
+# The bare "# OpenClaw Completion" line below is a marker: openclaw's
+# update/doctor/setup flows scan ~/.zshrc for it and, if absent, append
+# their own block with a hardcoded absolute path. An explicit
+# `--install` (openclaw's completion subcommand) strips the marker plus
+# the ONE line right under it, so that slot holds a throwaway comment,
+# not the source line. See docs/design.md.
+# ponytail: --install still appends an absolute-path block at EOF; recover
+# with `git checkout shell/.zshrc`. Upgrade: local ~/.zshrc stub sourcing this file.
+#-------------------------------------------------------------
 # OpenClaw Completion
-[ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
+# (marker slot: keep this comment directly under the header)
+[ -f "${OPENCLAW_STATE_DIR:-$HOME/.openclaw}/completions/openclaw.zsh" ] && source "${OPENCLAW_STATE_DIR:-$HOME/.openclaw}/completions/openclaw.zsh"
 
 #-------------------------------------------------------------
 # fastfetch (system info banner on shell startup — opt-in per machine)
